@@ -21,7 +21,7 @@ def lecture():
     if not est_authentifie():
         # Rediriger vers la page d'authentification si l'utilisateur n'est pas authentifié
         return redirect(url_for('authentification'))
-
+else
   # Si l'utilisateur est authentifié
     return "<h2>Bravo, vous êtes authentifié</h2>"
 
@@ -29,10 +29,14 @@ def lecture():
 def fiche_nom():
     if not est_authentifie():
         # Rediriger vers la page d'authentification si l'utilisateur n'est pas authentifié
-        return render_template('search_data.html')
-
-  # Si l'utilisateur est authentifié
-    return "<h2>Bravo, vous êtes authentifié</h2>"
+         return redirect(url_for('authentification'))
+        else
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM clients WHERE id = ?', (post_id,))
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('search_data.html')
 
 @app.route('/authentification', methods=['GET', 'POST'])
 def authentification():
