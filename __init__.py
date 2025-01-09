@@ -25,6 +25,15 @@ def lecture():
   # Si l'utilisateur est authentifié
     return "<h2>Bravo, vous êtes authentifié</h2>"
 
+@app.route('/fiche_nom')
+def fiche_nom():
+    if not est_authentifie():
+        # Rediriger vers la page d'authentification si l'utilisateur n'est pas authentifié
+        return render_template('search_data.html')
+
+  # Si l'utilisateur est authentifié
+    return "<h2>Bravo, vous êtes authentifié</h2>"
+
 @app.route('/authentification', methods=['GET', 'POST'])
 def authentification():
     if request.method == 'POST':
