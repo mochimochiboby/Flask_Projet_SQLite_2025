@@ -17,7 +17,7 @@ def hello_world():
     return render_template('hello.html')
 
 @app.route('/fiche_nom')
-def hello_world():
+def fiche_nom():
     return <p> coucou </P>
 
 @app.route('/lecture')
