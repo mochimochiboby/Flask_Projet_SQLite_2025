@@ -16,10 +16,6 @@ def est_authentifie():
 def hello_world():
     return render_template('hello.html')
 
-@app.route('/fiche_nom')
-def fiche_nom():
-    return <p> coucou </P>
-
 @app.route('/lecture')
 def lecture():
     if not est_authentifie():
