@@ -79,33 +79,50 @@ def enregistrer_client():
     conn.close()
     return redirect('/consultation/')  # Rediriger vers la page d'accueil après l'enregistrement
 
-@app.route('/create_user_library/', methods=['GET', 'POST'])
-def create_user():
+
+
+
+# Route pour afficher et mettre à jour un utilisateur
+@app.route('/update_user_library/<int:user_id>/', methods=['GET', 'POST'])
+def update_user(user_id):
+    conn = sqlite3.connect('library.db')
+    cursor = conn.cursor()
+
+    # Récupérer les informations de l'utilisateur actuel
+    cursor.execute("SELECT UserID, FirstName, LastName, Email FROM Users WHERE UserID = ?", (user_id,))
+    user = cursor.fetchone()
+
+    if not user:
+        flash('Utilisateur non trouvé', 'danger')
+        return redirect('/user_library/')
+
     if request.method == 'POST':
         # Récupérer les données du formulaire
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         email = request.form['email']
         password = request.form['password']
-        password_hash = generate_password_hash(password)  # Hasher le mot de passe
 
-        # Insérer dans la base de données
+        # Si le mot de passe est renseigné, on le hash
+        password_hash = generate_password_hash(password) if password else user[4]  # Si aucun mot de passe, on garde l'existant
+
+        # Mettre à jour les informations dans la base de données
         try:
-            conn = sqlite3.connect('library.db')
-            cursor = conn.cursor()
             cursor.execute("""
-                INSERT INTO Users (FirstName, LastName, Email, PasswordHash) 
-                VALUES (?, ?, ?, ?)
-            """, (first_name, last_name, email, password_hash))
+                UPDATE Users 
+                SET FirstName = ?, LastName = ?, Email = ?, PasswordHash = ? 
+                WHERE UserID = ?
+            """, (first_name, last_name, email, password_hash, user_id))
             conn.commit()
-            conn.close()
-
-            flash('Utilisateur créé avec succès', 'success')
+            flash('Utilisateur mis à jour avec succès', 'success')
             return redirect('/users_library/')  # Rediriger vers la page des utilisateurs
         except sqlite3.IntegrityError:
             flash('Erreur : Email déjà utilisé.', 'danger')
 
-    return render_template('create_user_library.html')
+    conn.close()
+
+    # Si la méthode est GET, afficher le formulaire pré-rempli avec les données existantes
+    return render_template('update_user.html', user=user)
 
 # Route pour afficher la liste des utilisateurs
 @app.route('/users_library/')
