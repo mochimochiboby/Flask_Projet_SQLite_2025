@@ -81,3 +81,14 @@ def enregistrer_client():
                                                                                                                                        
 if __name__ == "__main__":
   app.run(debug=True)
+
+# BASE DE DONNEES LIBRARY
+
+@app.route('/test/')
+def ReadBDD():
+    conn = sqlite3.connect('library.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM Users;')
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('read_data.html', data=data)
