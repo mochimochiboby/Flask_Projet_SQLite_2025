@@ -1,27 +1,31 @@
-import sqlite3
-
-connection = sqlite3.connect('database.db')
-
-with connection:
-    connection.execute("DROP TABLE IF EXISTS Users;")
-    connection.execute("""
-        CREATE TABLE Users (
-            UserID INTEGER PRIMARY KEY,
-            FirstName TEXT NOT NULL,
-            LastName TEXT NOT NULL,
-            Email TEXT UNIQUE NOT NULL,
-            PasswordHash TEXT NOT NULL,
-            DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
-    """)
-    connection.executemany("""
-        INSERT INTO Users (FirstName, LastName, Email, PasswordHash) VALUES (?, ?, ?, ?);
-    """, [
-        ('Emilie', 'Dupont', 'emilie.dupont@example.com', 'hashed_password_1'),
-        ('Lucas', 'Leroux', 'lucas.leroux@example.com', 'hashed_password_2'),
-        ('Amandine', 'Martin', 'amandine.martin@example.com', 'hashed_password_3'),
-        ('Antoine', 'Tremblay', 'antoine.tremblay@example.com', 'hashed_password_4'),
-        ('Sarah', 'Lambert', 'sarah.lambert@example.com', 'hashed_password_5')
-    ])
-
-connection.close()
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilisateurs</title>
+</head>
+<body>
+    <h1>Liste des Utilisateurs</h1>
+    <table border="1" cellspacing="0" cellpadding="8">
+        <tr>
+            <th>UserID</th>
+            <th>Prénom</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Mot de passe (hash)</th>
+            <th>Date de création</th>
+        </tr>
+        {% for row in data %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] }}</td>
+            <td>{{ row[4] }}</td>
+            <td>{{ row[5] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
