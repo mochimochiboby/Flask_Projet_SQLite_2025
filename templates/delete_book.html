@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Supprimer un Livre</h1>
+<form method="POST">
+    <div>
+        <label for="book_id">Sélectionnez un Livre :</label>
+        <select id="book_id" name="book_id" required>
+            {% for book in books %}
+            <option value="{{ book[0] }}">{{ book[1] }} - {{ book[2] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit">Supprimer</button>
+</form>
+{% endblock %}
