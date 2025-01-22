@@ -227,6 +227,47 @@ def manage_stock():
         return redirect('/list_books/')
     return render_template('manage_stock.html', books=books)
 
+# Retourner livre
+@app.route('/return_book/', methods=['GET', 'POST'])
+def return_book():
+    if not is_authenticated():
+        return redirect('/login/')
+
+    conn = sqlite3.connect('library.db')
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        borrow_id = request.form['borrow_id']
+
+        # Mettre à jour la date de retour dans BorrowedBooks
+        cursor.execute("UPDATE BorrowedBooks SET ReturnDate = CURRENT_DATE WHERE BorrowID = ?", (borrow_id,))
+        
+        # Récupérer l'ID du livre retourné
+        cursor.execute("SELECT BookID FROM BorrowedBooks WHERE BorrowID = ?", (borrow_id,))
+        book_id = cursor.fetchone()[0]
+
+        # Incrémenter le stock du livre dans la table Books
+        cursor.execute("UPDATE Books SET Stock = Stock + 1 WHERE BookID = ?", (book_id,))
+
+        # Commit les changements
+        conn.commit()
+
+        # Rediriger l'utilisateur vers la page des emprunts ou une autre page de confirmation
+        return redirect('/my_borrows/')  # ou une autre page de votre choix
+
+    # Afficher les livres empruntés par l'utilisateur
+    cursor.execute("""
+        SELECT b.BorrowID, bo.Title AS BookTitle, b.BorrowDate
+        FROM BorrowedBooks b
+        JOIN Books bo ON b.BookID = bo.BookID
+        WHERE b.UserID = ? AND b.ReturnDate IS NULL
+    """, (session['user_id'],))
+
+    borrows = cursor.fetchall()
+    conn.close()
+
+    return render_template('return_book.html', borrows=borrows)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
