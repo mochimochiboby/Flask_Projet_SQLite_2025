@@ -79,16 +79,6 @@ def enregistrer_client():
     conn.close()
     return redirect('/consultation/')  # Rediriger vers la page d'accueil après l'enregistrement
 
-@app.route('/userslibrary/')
-def display_users():
-    conn = sqlite3.connect('library.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT UserID, FirstName, LastName, Email, PasswordHash, DateCreated FROM Users")
-    data = cursor.fetchall()
-    conn.close()
-    return render_template('userlibrary.html', data=data)
-
-
 @app.route('/create_user_library/', methods=['GET', 'POST'])
 def create_user():
     if request.method == 'POST':
@@ -99,8 +89,8 @@ def create_user():
         password = request.form['password']
         password_hash = generate_password_hash(password)  # Hasher le mot de passe
 
+        # Insérer dans la base de données
         try:
-            # Insérer dans la base de données
             conn = sqlite3.connect('library.db')
             cursor = conn.cursor()
             cursor.execute("""
@@ -111,11 +101,21 @@ def create_user():
             conn.close()
 
             flash('Utilisateur créé avec succès', 'success')
-            return redirect(url_for('create_user_library'))
+            return redirect('/users_library/')  # Rediriger vers la page des utilisateurs
         except sqlite3.IntegrityError:
             flash('Erreur : Email déjà utilisé.', 'danger')
-    
+
     return render_template('create_user_library.html')
+
+# Route pour afficher la liste des utilisateurs
+@app.route('/users_library/')
+def users_library():
+    conn = sqlite3.connect('library.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT UserID, FirstName, LastName, Email, DateCreated FROM Users;")
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('user_library.html', data=data)
                                                                                                                                        
 if __name__ == "__main__":
   app.run(debug=True)
