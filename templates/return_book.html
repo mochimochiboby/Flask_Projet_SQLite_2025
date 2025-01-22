@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Retourner un Livre</title>
+</head>
+<body>
+    <h1>Retourner un Livre</h1>
+    <form method="POST" action="/return_book/">
+        <div>
+            <label for="borrow_id">Sélectionner un livre à retourner :</label>
+            <select name="borrow_id" id="borrow_id">
+                {% for borrow in borrows %}
+                <option value="{{ borrow.BorrowID }}">{{ borrow.BookTitle }} - Emprunté le : {{ borrow.BorrowDate }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <button type="submit">Retourner le Livre</button>
+        </div>
+    </form>
+</body>
+</html>
