@@ -80,59 +80,6 @@ def enregistrer_client():
     return redirect('/consultation/')  # Rediriger vers la page d'accueil après l'enregistrement
 
 
-
-
-# Route pour afficher et mettre à jour un utilisateur
-@app.route('/update_user_library/<int:user_id>/', methods=['GET', 'POST'])
-def update_user(user_id):
-    conn = sqlite3.connect('library.db')
-    cursor = conn.cursor()
-
-    # Récupérer les informations de l'utilisateur actuel
-    cursor.execute("SELECT UserID, FirstName, LastName, Email FROM Users WHERE UserID = ?", (user_id,))
-    user = cursor.fetchone()
-
-    if not user:
-        flash('Utilisateur non trouvé', 'danger')
-        return redirect('/user_library/')
-
-    if request.method == 'POST':
-        # Récupérer les données du formulaire
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        email = request.form['email']
-        password = request.form['password']
-
-        # Si le mot de passe est renseigné, on le hash
-        password_hash = generate_password_hash(password) if password else user[4]  # Si aucun mot de passe, on garde l'existant
-
-        # Mettre à jour les informations dans la base de données
-        try:
-            cursor.execute("""
-                UPDATE Users 
-                SET FirstName = ?, LastName = ?, Email = ?, PasswordHash = ? 
-                WHERE UserID = ?
-            """, (first_name, last_name, email, password_hash, user_id))
-            conn.commit()
-            flash('Utilisateur mis à jour avec succès', 'success')
-            return redirect('/users_library/')  # Rediriger vers la page des utilisateurs
-        except sqlite3.IntegrityError:
-            flash('Erreur : Email déjà utilisé.', 'danger')
-
-    conn.close()
-
-    # Si la méthode est GET, afficher le formulaire pré-rempli avec les données existantes
-    return render_template('update_user.html', user=user)
-
-# Route pour afficher la liste des utilisateurs
-@app.route('/users_library/')
-def users_library():
-    conn = sqlite3.connect('library.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT UserID, FirstName, LastName, Email, DateCreated FROM Users;")
-    data = cursor.fetchall()
-    conn.close()
-    return render_template('user_library.html', data=data)
                                                                                                                                        
 if __name__ == "__main__":
   app.run(debug=True)
