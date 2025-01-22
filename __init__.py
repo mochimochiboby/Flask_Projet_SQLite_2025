@@ -86,7 +86,7 @@ def display_users():
     cursor.execute("SELECT UserID, FirstName, LastName, Email, PasswordHash, DateCreated FROM Users")
     data = cursor.fetchall()
     conn.close()
-    return render_template('userslibrary.html', data=data)
+    return render_template('userlibrary.html', data=data)
 
 
                                                                                                                                        
