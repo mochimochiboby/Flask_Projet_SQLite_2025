@@ -79,15 +79,14 @@ def enregistrer_client():
     conn.close()
     return redirect('/consultation/')  # Rediriger vers la page d'accueil après l'enregistrement
 
-@app.route('/test/')
-def ReadBDDlib():
+@app.route('/userslibrary/')
+def display_users():
     conn = sqlite3.connect('library.db')
-    conn.row_factory = sqlite3.Row  # Permet l'accès aux données par nom de colonne
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM Users;')  # Récupère toutes les données de la table Users
+    cursor.execute("SELECT UserID, FirstName, LastName, Email, PasswordHash, DateCreated FROM Users")
     data = cursor.fetchall()
     conn.close()
-    return render_template('userlibrary.html', users=data)  # Passe les données à la page HTML
+    return render_template('userslibrary.html', data=data)
 
 
                                                                                                                                        
