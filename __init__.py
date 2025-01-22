@@ -82,45 +82,92 @@ def enregistrer_client():
 
 
 # === NOUVELLES ROUTES POUR LA GESTION DES LIVRES ET DES UTILISATEURS ===
+from flask import Flask, render_template, request, redirect, url_for, session
+import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash
 
-# Ajouter un livre
-@app.route('/add_book/', methods=['GET', 'POST'])
-def add_book():
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+
+# Vérification de l'authentification
+def is_authenticated():
+    return 'user_id' in session
+
+# Vérification si l'utilisateur est admin
+def is_admin():
+    return session.get('is_admin', False)
+
+@app.route('/login/', methods=['GET', 'POST'])
+def login():
     if request.method == 'POST':
-        title = request.form['title']
-        author = request.form['author']
-        genre = request.form.get('genre', '')
-        year = request.form.get('year', None)
-        stock = request.form['stock']
+        email = request.form['email']
+        password = request.form['password']
 
         conn = sqlite3.connect('library.db')
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO Books (Title, Author, Genre, PublishedYear, Stock) VALUES (?, ?, ?, ?, ?)",
-                       (title, author, genre, year, stock))
-        conn.commit()
+        cursor.execute("SELECT UserID, PasswordHash, Email FROM Users WHERE Email = ?", (email,))
+        user = cursor.fetchone()
         conn.close()
-        return redirect('/list_books/')
-    return render_template('add_book.html')
 
+        if user and check_password_hash(user[1], password):
+            session['user_id'] = user[0]
+            session['is_admin'] = email == 'admin@example.com'  # Remplacez par votre logique admin
+            return redirect('/admin/' if is_admin() else '/')
+        else:
+            return render_template('login.html', error=True)
 
-# Supprimer un livre
-@app.route('/delete_book/', methods=['GET', 'POST'])
-def delete_book():
-    conn = sqlite3.connect('library.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Books")
-    books = cursor.fetchall()
-    conn.close()
+    return render_template('login.html', error=False)
+
+@app.route('/logout/')
+def logout():
+    session.clear()
+    return redirect('/login/')
+
+@app.route('/borrow/', methods=['GET', 'POST'])
+def borrow():
+    if not is_authenticated():
+        return redirect('/login/')
 
     if request.method == 'POST':
         book_id = request.form['book_id']
+
         conn = sqlite3.connect('library.db')
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM Books WHERE BookID = ?", (book_id,))
-        conn.commit()
+        cursor.execute("SELECT Stock FROM Books WHERE BookID = ?", (book_id,))
+        book = cursor.fetchone()
+
+        if book and book[0] > 0:
+            cursor.execute("INSERT INTO BorrowedBooks (UserID, BookID) VALUES (?, ?)", (session['user_id'], book_id))
+            cursor.execute("UPDATE Books SET Stock = Stock - 1 WHERE BookID = ?", (book_id,))
+            conn.commit()
         conn.close()
-        return redirect('/list_books/')
-    return render_template('delete_book.html', books=books)
+        return redirect('/')
+
+    return render_template('borrow.html')
+
+@app.route('/admin/borrows/')
+def admin_borrows():
+    if not is_admin():
+        return redirect('/login/')
+
+    conn = sqlite3.connect('library.db')
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT b.BorrowID, u.FirstName || ' ' || u.LastName AS UserName, bo.Title AS BookTitle, b.BorrowDate, b.ReturnDate
+        FROM BorrowedBooks b
+        JOIN Users u ON b.UserID = u.UserID
+        JOIN Books bo ON b.BookID = bo.BookID
+    """)
+    borrows = cursor.fetchall()
+    conn.close()
+
+    return render_template('admin_borrowed_books.html', borrows=borrows)
+
+@app.route('/admin/')
+def admin_dashboard():
+    if not is_admin():
+        return redirect('/login/')
+    return render_template('admin_dashboard.html')
 
 
 # Liste des livres
@@ -147,29 +194,6 @@ def search_books():
         conn.close()
     return render_template('search_books.html', books=books)
 
-
-# Emprunter un livre
-@app.route('/borrow_book/', methods=['GET', 'POST'])
-def borrow_book():
-    conn = sqlite3.connect('library.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Users")
-    users = cursor.fetchall()
-    cursor.execute("SELECT * FROM Books WHERE Stock > 0")
-    books = cursor.fetchall()
-    conn.close()
-
-    if request.method == 'POST':
-        user_id = request.form['user_id']
-        book_id = request.form['book_id']
-        conn = sqlite3.connect('library.db')
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO BorrowedBooks (UserID, BookID) VALUES (?, ?)", (user_id, book_id))
-        cursor.execute("UPDATE Books SET Stock = Stock - 1 WHERE BookID = ?", (book_id,))
-        conn.commit()
-        conn.close()
-        return redirect('/list_books/')
-    return render_template('borrow_book.html', users=users, books=books)
 
 
 # Gestion des utilisateurs
