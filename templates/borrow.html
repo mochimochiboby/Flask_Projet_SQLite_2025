@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Emprunter un Livre</title>
+</head>
+<body>
+    <h1>Emprunter un Livre</h1>
+    <form method="POST" action="/borrow/">
+        <div>
+            <label for="book_id">ID du Livre :</label>
+            <input type="number" id="book_id" name="book_id" required>
+        </div>
+        <div>
+            <button type="submit">Emprunter</button>
+        </div>
+    </form>
+</body>
+</html>
