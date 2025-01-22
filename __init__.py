@@ -89,6 +89,33 @@ def display_users():
     return render_template('userlibrary.html', data=data)
 
 
+@app.route('/create_user_library/', methods=['GET', 'POST'])
+def create_user():
+    if request.method == 'POST':
+        # Récupérer les données du formulaire
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        email = request.form['email']
+        password = request.form['password']
+        password_hash = generate_password_hash(password)  # Hasher le mot de passe
+
+        try:
+            # Insérer dans la base de données
+            conn = sqlite3.connect('library.db')
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO Users (FirstName, LastName, Email, PasswordHash) 
+                VALUES (?, ?, ?, ?)
+            """, (first_name, last_name, email, password_hash))
+            conn.commit()
+            conn.close()
+
+            flash('Utilisateur créé avec succès', 'success')
+            return redirect(url_for('create_user'))
+        except sqlite3.IntegrityError:
+            flash('Erreur : Email déjà utilisé.', 'danger')
+    
+    return render_template('create_user_library.html')
                                                                                                                                        
 if __name__ == "__main__":
   app.run(debug=True)
