@@ -111,7 +111,7 @@ def create_user():
             conn.close()
 
             flash('Utilisateur créé avec succès', 'success')
-            return redirect(url_for('create_user'))
+            return redirect(url_for('create_user_library'))
         except sqlite3.IntegrityError:
             flash('Erreur : Email déjà utilisé.', 'danger')
     
