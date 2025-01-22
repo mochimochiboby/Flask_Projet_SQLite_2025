@@ -1,28 +1,28 @@
 DROP TABLE IF EXISTS Books;
 CREATE TABLE Books (
-    BookID INT PRIMARY KEY AUTO_INCREMENT,
-    Title VARCHAR(255) NOT NULL,
-    Author VARCHAR(255) NOT NULL,
-    Genre VARCHAR(100),
-    PublishedYear INT,
-    Stock INT NOT NULL DEFAULT 0
+    BookID INTEGER PRIMARY KEY, -- Gère automatiquement l'auto-incrémentation
+    Title TEXT NOT NULL,
+    Author TEXT NOT NULL,
+    Genre TEXT,
+    PublishedYear INTEGER,
+    Stock INTEGER NOT NULL DEFAULT 0
 );
 
 DROP TABLE IF EXISTS Users;
 CREATE TABLE Users (
-    UserID INT PRIMARY KEY AUTO_INCREMENT,
-    FirstName VARCHAR(50) NOT NULL,
-    LastName VARCHAR(50) NOT NULL,
-    Email VARCHAR(100) UNIQUE NOT NULL,
-    PasswordHash VARCHAR(255) NOT NULL,
+    UserID INTEGER PRIMARY KEY, -- Gère automatiquement l'auto-incrémentation
+    FirstName TEXT NOT NULL,
+    LastName TEXT NOT NULL,
+    Email TEXT UNIQUE NOT NULL,
+    PasswordHash TEXT NOT NULL,
     DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 DROP TABLE IF EXISTS BorrowedBooks;
 CREATE TABLE BorrowedBooks (
-    BorrowID INT PRIMARY KEY AUTO_INCREMENT,
-    UserID INT NOT NULL,
-    BookID INT NOT NULL,
+    BorrowID INTEGER PRIMARY KEY, -- Gère automatiquement l'auto-incrémentation
+    UserID INTEGER NOT NULL,
+    BookID INTEGER NOT NULL,
     BorrowDate DATE NOT NULL DEFAULT CURRENT_DATE,
     ReturnDate DATE,
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
@@ -31,11 +31,10 @@ CREATE TABLE BorrowedBooks (
 
 DROP TABLE IF EXISTS Transactions;
 CREATE TABLE Transactions (
-    TransactionID INT PRIMARY KEY AUTO_INCREMENT,
-    BookID INT NOT NULL,
-    TransactionType ENUM('Addition', 'Removal') NOT NULL,
-    Quantity INT NOT NULL,
+    TransactionID INTEGER PRIMARY KEY, -- Gère automatiquement l'auto-incrémentation
+    BookID INTEGER NOT NULL,
+    TransactionType TEXT NOT NULL,
+    Quantity INTEGER NOT NULL,
     TransactionDate DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (BookID) REFERENCES Books(BookID)
 );
-
