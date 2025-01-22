@@ -78,9 +78,6 @@ def enregistrer_client():
     conn.commit()
     conn.close()
     return redirect('/consultation/')  # Rediriger vers la page d'accueil après l'enregistrement
-                                                                                                                                       
-if __name__ == "__main__":
-  app.run(debug=True)
 
 @app.route('/test/')
 def ReadBDD():
@@ -91,4 +88,10 @@ def ReadBDD():
     data = cursor.fetchall()
     conn.close()
     return render_template('userlibrary.html', users=data)  # Passe les données à la page HTML
+
+
+                                                                                                                                       
+if __name__ == "__main__":
+  app.run(debug=True)
+
 
