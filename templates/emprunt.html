@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +7,10 @@
 </head>
 <body>
     <h1>Emprunter un Livre</h1>
-    <form method="POST" action="/emprunter">
-        <input type="number" name="livre_id" placeholder="ID du livre" required>
+    <form action="/emprunter" method="POST">
+        <label for="livre_id">ID du Livre :</label>
+        <input type="number" name="livre_id" id="livre_id" required><br><br>
+
         <button type="submit">Emprunter</button>
     </form>
 </body>
