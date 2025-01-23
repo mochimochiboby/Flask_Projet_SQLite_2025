@@ -19,11 +19,27 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        # Vérifiez les identifiants dans votre base de données ici
-        # Exemple : cur.execute("SELECT * FROM Utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, password))
-        return "Authentification en cours..."
+        
+        # Connexion à la base de données
+        connection = sqlite3.connect('bibliotheque.db')
+        cursor = connection.cursor()
+        
+        # Vérifier si l'utilisateur existe avec l'email et le mot de passe
+        query = "SELECT * FROM Users WHERE Email = ? AND PasswordHash = ?"
+        cursor.execute(query, (email, password))
+        user = cursor.fetchone()
+        connection.close()
+        
+        if user:
+            # Authentification réussie
+            flash('Connexion réussie !', 'success')
+            return redirect(url_for('home'))
+        else:
+            # Authentification échouée
+            flash('Email ou mot de passe incorrect.', 'error')
+            return redirect(url_for('login'))
+    
     return render_template('login.html')
-
 
 # Fonction pour créer une clé "authentifie" dans la session utilisateur
 def est_authentifie():
