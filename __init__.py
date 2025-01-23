@@ -8,127 +8,74 @@ import sqlite3
 app = Flask(__name__)                                                                                                                   
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 
-# Page d'accueil
 @app.route('/')
-def home():
-    return render_template('home.html')
-
-# Page de connexion
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        
-        # Connexion à la base de données
-        connection = sqlite3.connect('bibliotheque.db')
-        cursor = connection.cursor()
-        
-        # Vérifier si l'utilisateur existe avec l'email et le mot de passe
-        query = "SELECT * FROM Users WHERE Email = ? AND PasswordHash = ?"
-        cursor.execute(query, (email, password))
-        user = cursor.fetchone()
-        connection.close()
-        
-        if user:
-            # Authentification réussie
-            flash('Connexion réussie !', 'success')
-            return redirect(url_for('home'))
-        else:
-            # Authentification échouée
-            flash('Email ou mot de passe incorrect.', 'error')
-            return redirect(url_for('login'))
-    
+def index():
     return render_template('login.html')
 
-# Fonction pour créer une clé "authentifie" dans la session utilisateur
-def est_authentifie():
-    return session.get('authentifie')
-
-# Connexion à la base de données
-def get_db_connection():
-    conn = sqlite3.connect('bibliotheque.db')
-    conn.row_factory = sqlite3.Row
-    return conn
-
-# Routes pour les utilisateurs
-@app.route('/rechercher', methods=['GET'])
-def rechercher():
-    titre = request.args.get('titre', '')
+@app.route('/login', methods=['POST'])
+def login():
+    email = request.form['email']
+    mot_de_passe = request.form['mot_de_passe']
+    
     conn = get_db_connection()
-    livres = conn.execute("SELECT * FROM Livres WHERE titre LIKE ?", ('%' + titre + '%',)).fetchall()
+    user = conn.execute('SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?', 
+                        (email, mot_de_passe)).fetchone()
     conn.close()
-    return jsonify([dict(livre) for livre in livres])
+
+    if user:
+        if user['role'] == 'utilisateur':
+            return redirect(url_for('recherche_livres'))
+        elif user['role'] == 'administrateur':
+            return redirect(url_for('admin_gestion_livres'))
+    else:
+        return 'Email ou mot de passe incorrect'
+
+@app.route('/recherche', methods=['GET'])
+def recherche_livres():
+    titre = request.args.get('titre', '')
+    auteur = request.args.get('auteur', '')
+
+    conn = get_db_connection()
+    livres = conn.execute('SELECT * FROM livres WHERE titre LIKE ? AND auteur LIKE ?', 
+                          ('%' + titre + '%', '%' + auteur + '%')).fetchall()
+    conn.close()
+
+    return render_template('recherche_livres.html', livres=livres)
 
 @app.route('/emprunter', methods=['POST'])
 def emprunter():
-    utilisateur_id = 1  # À remplacer par l'ID réel après authentification
     livre_id = request.form['livre_id']
+    utilisateur_id = 1  # Assumer que l'utilisateur est connecté avec ID 1 pour cet exemple
+    date_emprunt = datetime.now().strftime('%Y-%m-%d')
+
     conn = get_db_connection()
-    conn.execute("INSERT INTO Emprunts (utilisateur_id, livre_id) VALUES (?, ?)", (utilisateur_id, livre_id))
-    conn.execute("UPDATE Livres SET quantite_stock = quantite_stock - 1 WHERE livre_id = ?", (livre_id,))
+    conn.execute('INSERT INTO emprunts (utilisateur_id, livre_id, date_emprunt) VALUES (?, ?, ?)',
+                 (utilisateur_id, livre_id, date_emprunt))
     conn.commit()
     conn.close()
-    return redirect(url_for('rechercher'))
 
-@app.route('/restituer', methods=['POST'])
-def restituer():
-    emprunt_id = request.form['emprunt_id']
+    return 'Livre emprunté avec succès !'
+
+@app.route('/admin_gestion_livres')
+def admin_gestion_livres():
     conn = get_db_connection()
-    emprunt = conn.execute("SELECT livre_id FROM Emprunts WHERE emprunt_id = ?", (emprunt_id,)).fetchone()
-    if emprunt:
-        conn.execute("UPDATE Emprunts SET statut = 'restitué', date_restitution = CURRENT_TIMESTAMP WHERE emprunt_id = ?", (emprunt_id,))
-        conn.execute("UPDATE Livres SET quantite_stock = quantite_stock + 1 WHERE livre_id = ?", (emprunt['livre_id'],))
-        conn.commit()
+    livres = conn.execute('SELECT * FROM livres').fetchall()
     conn.close()
-    return redirect(url_for('rechercher'))
+    return render_template('admin_gestion_livres.html', livres=livres)
 
-# Routes pour les administrateurs
 @app.route('/ajouter_livre', methods=['POST'])
 def ajouter_livre():
     titre = request.form['titre']
     auteur = request.form['auteur']
-    quantite_stock = request.form['quantite_stock']
+    stock = request.form['stock']
+
     conn = get_db_connection()
-    conn.execute("INSERT INTO Livres (titre, auteur, quantite_stock) VALUES (?, ?, ?)", (titre, auteur, quantite_stock))
+    conn.execute('INSERT INTO livres (titre, auteur, stock) VALUES (?, ?, ?)', 
+                 (titre, auteur, stock))
     conn.commit()
     conn.close()
-    return redirect(url_for('gestion_livres'))
 
-@app.route('/supprimer_livre', methods=['POST'])
-def supprimer_livre():
-    livre_id = request.form['livre_id']
-    conn = get_db_connection()
-    conn.execute("DELETE FROM Livres WHERE livre_id = ?", (livre_id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('gestion_livres'))
-
-@app.route('/ajouter_utilisateur', methods=['POST'])
-def ajouter_utilisateur():
-    nom = request.form['nom']
-    email = request.form['email']
-    mot_de_passe = request.form['mot_de_passe']
-    type_utilisateur = request.form['type_utilisateur']
-    conn = get_db_connection()
-    conn.execute("INSERT INTO Utilisateurs (nom, email, mot_de_passe, type_utilisateur) VALUES (?, ?, ?, ?)", 
-                 (nom, email, mot_de_passe, type_utilisateur))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('gestion_utilisateurs'))
-
-# Routes pour afficher les pages HTML
-@app.route('/recherche_livres')
-def recherche_livres():
-    return render_template('recherche_livres.html')
-
-@app.route('/gestion_livres')
-def gestion_livres():
-    return render_template('gestion_livres.html')
-
-@app.route('/gestion_utilisateurs')
-def gestion_utilisateurs():
-    return render_template('gestion_utilisateurs.html')
+    return redirect(url_for('admin_gestion_livres'))
 
 if __name__ == '__main__':
     app.run(debug=True)
