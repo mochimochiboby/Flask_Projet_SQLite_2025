@@ -32,16 +32,16 @@ cur.execute("INSERT INTO livres (titre, auteur, annee_publication, stock) VALUES
 cur.execute("INSERT INTO livres (titre, auteur, annee_publication, stock) VALUES (?, ?, ?, ?)", ('The Divine Comedy', 'Dante Alighieri', 1320, 3))
 
 # Insertion des emprunts
-cur.execute("INSERT INTO emprunts (utilisateur_id, livre_id, date_emprunt, date_restitution, statut) VALUES (?, ?, ?, ?, ?)", (1, 2, '2023-01-15', None, 'emprunté'))
-cur.execute("INSERT INTO emprunts (utilisateur_id, livre_id, date_emprunt, date_restitution, statut) VALUES (?, ?, ?, ?, ?)", (2, 1, '2023-01-20', None, 'emprunté'))
-cur.execute("INSERT INTO emprunts (utilisateur_id, livre_id, date_emprunt, date_restitution, statut) VALUES (?, ?, ?, ?, ?)", (3, 4, '2023-01-25', None, 'emprunté'))
+cur.execute("INSERT INTO emprunts (utilisateur_id, livre_id, date_emprunt, date_retour) VALUES (?, ?, ?, ?)", (1, 2, '2023-01-15', None))
+cur.execute("INSERT INTO emprunts (utilisateur_id, livre_id, date_emprunt, date_retour) VALUES (?, ?, ?, ?)", (2, 1, '2023-01-20', None))
+cur.execute("INSERT INTO emprunts (utilisateur_id, livre_id, date_emprunt, date_retour) VALUES (?, ?, ?, ?)", (3, 4, '2023-01-25', None))
 
 # Insertion des transactions (ajout de stock)
-cur.execute("INSERT INTO transactions (livre_id, type_transaction, quantite, date_transaction) VALUES (?, ?, ?, ?)", (1, 'ajout', 10, '2023-01-01'))
-cur.execute("INSERT INTO transactions (livre_id, type_transaction, quantite, date_transaction) VALUES (?, ?, ?, ?)", (2, 'ajout', 5, '2023-01-05'))
-cur.execute("INSERT INTO transactions (livre_id, type_transaction, quantite, date_transaction) VALUES (?, ?, ?, ?)", (3, 'ajout', 8, '2023-01-10'))
-cur.execute("INSERT INTO transactions (livre_id, type_transaction, quantite, date_transaction) VALUES (?, ?, ?, ?)", (4, 'ajout', 7, '2023-01-12'))
-cur.execute("INSERT INTO transactions (livre_id, type_transaction, quantite, date_transaction) VALUES (?, ?, ?, ?)", (5, 'ajout', 6, '2023-01-15'))
+cur.execute("INSERT INTO transactions (utilisateur_id, livre_id, type_transaction, date_transaction) VALUES (?, ?, ?, ?)", (1, 2, 'emprunt', '2023-01-15'))
+cur.execute("INSERT INTO transactions (utilisateur_id, livre_id, type_transaction, date_transaction) VALUES (?, ?, ?, ?)", (2, 1, 'emprunt', '2023-01-20'))
+cur.execute("INSERT INTO transactions (utilisateur_id, livre_id, type_transaction, date_transaction) VALUES (?, ?, ?, ?)", (3, 4, 'emprunt', '2023-01-25'))
+cur.execute("INSERT INTO transactions (utilisateur_id, livre_id, type_transaction, date_transaction) VALUES (?, ?, ?, ?)", (1, 2, 'restitution', '2023-02-15'))
+cur.execute("INSERT INTO transactions (utilisateur_id, livre_id, type_transaction, date_transaction) VALUES (?, ?, ?, ?)", (2, 1, 'restitution', '2023-02-20'))
 
 # Validation des changements
 connection.commit()
