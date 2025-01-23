@@ -3,11 +3,10 @@ import sqlite3
 # Connexion à la base de données SQLite
 connection = sqlite3.connect('bibliotheque.db')
 
-# Lecture et exécution du fichier de schéma SQL
+# Activer les clés étrangères pour SQLite
+connection.execute('PRAGMA foreign_keys = ON;')
 
-with open('schema2.sql') as f:
-    connection.executescript(f.read())
-
+# Création du curseur
 cur = connection.cursor()
 
 # Insertion des données dans la table Utilisateurs
@@ -72,16 +71,16 @@ cur.executemany(
     emprunts_data
 )
 
-# Exemple d'ajout des transactions (ajout de stock)
+# Insertion des données dans la table Transactions (pour l'ajout de stock)
 transactions_data = [
-    (1, 'ajout', 10),
-    (2, 'ajout', 5),
-    (3, 'ajout', 8),
-    (4, 'ajout', 7),
-    (5, 'ajout', 6)
+    (1, 'ajout', 10, '2023-01-01'),
+    (2, 'ajout', 5, '2023-01-05'),
+    (3, 'ajout', 8, '2023-01-10'),
+    (4, 'ajout', 7, '2023-01-12'),
+    (5, 'ajout', 6, '2023-01-15')
 ]
 cur.executemany(
-    "INSERT INTO transactions (livre_id, type_transaction, quantite) VALUES (?, ?, ?)",
+    "INSERT INTO transactions (livre_id, type_transaction, quantite, date_transaction) VALUES (?, ?, ?, ?)",
     transactions_data
 )
 
@@ -90,5 +89,3 @@ connection.commit()
 
 # Fermeture de la connexion
 connection.close()
-
-print("Base de données remplie avec succès !")
