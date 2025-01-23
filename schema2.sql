@@ -31,3 +31,14 @@ CREATE TABLE Emprunts (
     FOREIGN KEY (utilisateur_id) REFERENCES Utilisateurs(utilisateur_id),
     FOREIGN KEY (livre_id) REFERENCES Livres(livre_id)
 );
+
+-- Table pour les transactions
+DROP TABLE IF EXISTS Transactions;
+CREATE TABLE Transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    livre_id INTEGER NOT NULL,
+    type_transaction TEXT NOT NULL CHECK (type_transaction IN ('ajout', 'retrait')),
+    quantite INTEGER NOT NULL CHECK (quantite > 0),
+    date_transaction TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (livre_id) REFERENCES Livres (id)
+);
