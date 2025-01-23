@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Livres</title>
+</head>
+<body>
+    <h1>Gestion des Livres</h1>
+    <form method="POST" action="/ajouter_livre">
+        <input type="text" name="titre" placeholder="Titre" required>
+        <input type="text" name="auteur" placeholder="Auteur" required>
+        <input type="number" name="quantite_stock" placeholder="Quantité" required>
+        <button type="submit">Ajouter</button>
+    </form>
+
+    <form method="POST" action="/supprimer_livre">
+        <input type="number" name="livre_id" placeholder="ID du Livre" required>
+        <button type="submit">Supprimer</button>
+    </form>
+</body>
+</html>
