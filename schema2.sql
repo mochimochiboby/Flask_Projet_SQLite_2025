@@ -1,44 +1,46 @@
--- Table pour les utilisateurs
-DROP TABLE IF EXISTS Utilisateurs;
-CREATE TABLE Utilisateurs (
-    utilisateur_id INTEGER PRIMARY KEY AUTOINCREMENT,
+-- Table des utilisateurs
+DROP TABLE IF EXISTS utilisateurs;
+CREATE TABLE utilisateurs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     nom TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
+    email TEXT NOT NULL UNIQUE,
     mot_de_passe TEXT NOT NULL,
-    type_utilisateur TEXT NOT NULL CHECK (type_utilisateur IN ('utilisateur', 'administrateur')),
-    date_inscription DATETIME DEFAULT CURRENT_TIMESTAMP
+    role TEXT NOT NULL CHECK(role IN ('utilisateur', 'administrateur'))
 );
 
--- Table pour les livres
-DROP TABLE IF EXISTS Livres;
-CREATE TABLE Livres (
-    livre_id INTEGER PRIMARY KEY AUTOINCREMENT,
+-- Table des livres
+DROP TABLE IF EXISTS livres;
+CREATE TABLE livres (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     titre TEXT NOT NULL,
     auteur TEXT NOT NULL,
     annee_publication INTEGER,
-    quantite_stock INTEGER NOT NULL CHECK (quantite_stock >= 0)
+    stock INTEGER NOT NULL
 );
 
--- Table pour les emprunts
-DROP TABLE IF EXISTS Emprunts;
-CREATE TABLE Emprunts (
-    emprunt_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    utilisateur_id INTEGER NOT NULL,
-    livre_id INTEGER NOT NULL,
-    date_emprunt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    date_restitution DATETIME,
-    statut TEXT NOT NULL DEFAULT 'emprunté' CHECK (statut IN ('emprunté', 'restitué')),
-    FOREIGN KEY (utilisateur_id) REFERENCES Utilisateurs(utilisateur_id),
-    FOREIGN KEY (livre_id) REFERENCES Livres(livre_id)
-);
-
--- Table pour les transactions
-DROP TABLE IF EXISTS Transactions;
-CREATE TABLE Transactions (
+-- Table des emprunts
+DROP TABLE IF EXISTS emprunts;
+CREATE TABLE emprunts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    livre_id INTEGER NOT NULL,
-    type_transaction TEXT NOT NULL CHECK (type_transaction IN ('ajout', 'retrait')),
-    quantite INTEGER NOT NULL CHECK (quantite > 0),
-    date_transaction TEXT DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (livre_id) REFERENCES Livres (id)
+    utilisateur_id INTEGER,
+    livre_id INTEGER,
+    date_emprunt DATE NOT NULL,
+    date_retour DATE,
+    FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id),
+    FOREIGN KEY(livre_id) REFERENCES livres(id)
+);
+
+-- Table des transactions (pour gérer les emprunts et restitutions)
+DROP TABLE IF EXISTS transactions;
+CREATE TABLE transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    utilisateur_id INTEGER,
+    livre_id INTEGER,
+    type_transaction TEXT NOT NULL CHECK(type_transaction IN ('emprunt', 'restitution')),
+    date_transaction DATE NOT NULL,
+    FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id),
+    FOREIGN KEY(livre_id) REFERENCES livres(id)
+);
+    FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id),
+    FOREIGN KEY(livre_id) REFERENCES livres(id)
 );
