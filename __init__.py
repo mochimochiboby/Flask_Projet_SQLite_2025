@@ -8,6 +8,23 @@ import sqlite3
 app = Flask(__name__)                                                                                                                  
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 
+# Page d'accueil
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+# Page de connexion
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        # Vérifiez les identifiants dans votre base de données ici
+        # Exemple : cur.execute("SELECT * FROM Utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, password))
+        return "Authentification en cours..."
+    return render_template('login.html')
+
+
 # Fonction pour créer une clé "authentifie" dans la session utilisateur
 def est_authentifie():
     return session.get('authentifie')
