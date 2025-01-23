@@ -41,6 +41,3 @@ CREATE TABLE transactions (
     FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id),
     FOREIGN KEY(livre_id) REFERENCES livres(id)
 );
-    FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id),
-    FOREIGN KEY(livre_id) REFERENCES livres(id)
-);
