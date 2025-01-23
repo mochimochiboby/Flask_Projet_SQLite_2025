@@ -18,17 +18,32 @@ def login():
     mot_de_passe = request.form['mot_de_passe']
     
     conn = get_db_connection()
-    user = conn.execute('SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?', 
-                        (email, mot_de_passe)).fetchone()
-    conn.close()
+    cur = conn.cursor()
 
-    if user:
-        if user['role'] == 'utilisateur':
-            return redirect(url_for('recherche_livres'))
-        elif user['role'] == 'administrateur':
-            return redirect(url_for('admin_gestion_livres'))
+    # Vérification des informations d'identification de l'utilisateur
+    cur.execute("SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, mot_de_passe))
+    utilisateur = cur.fetchone()
+
+    if utilisateur:
+        # Connexion réussie, démarrer une session
+        session['utilisateur_id'] = utilisateur['id']
+        session['nom'] = utilisateur['nom']
+        session['role'] = utilisateur['role']
+        return redirect(url_for('dashboard'))  # Page d'accueil après connexion
     else:
-        return 'Email ou mot de passe incorrect'
+        # Si l'utilisateur n'existe pas ou les informations sont incorrectes
+        return render_template('login.html', message="Identifiants incorrects")
+
+@app.route('/dashboard')
+def dashboard():
+    if 'utilisateur_id' not in session:
+        return redirect(url_for('index'))  # Rediriger vers la page de login si non connecté
+    return render_template('dashboard.html', utilisateur=session)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
 @app.route('/recherche', methods=['GET'])
 def recherche_livres():
