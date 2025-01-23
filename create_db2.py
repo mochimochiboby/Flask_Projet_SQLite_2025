@@ -11,14 +11,14 @@ cur = connection.cursor()
 
 # Insertion des données dans la table Utilisateurs
 utilisateurs_data = [
-    ('Emilie Dupont', 'emilie.dupont@example.com', 'hashed_password_1', 'utilisateur'),
-    ('Lucas Leroux', 'lucas.leroux@example.com', 'hashed_password_2', 'utilisateur'),
-    ('Amandine Martin', 'amandine.martin@example.com', 'hashed_password_3', 'utilisateur'),
-    ('Antoine Tremblay', 'antoine.tremblay@example.com', 'hashed_password_4', 'utilisateur'),
-    ('Clement Lahaye', 'cl.lahaye@cfacampusmontsouris.fr', 'ABCDEFG', 'administrateur')
+    ('Emilie Dupont', 'emilie.dupont@example.com', 'motdepasse1', 'utilisateur'),
+    ('Lucas Leroux', 'lucas.leroux@example.com', 'motdepasse2', 'utilisateur'),
+    ('Amandine Martin', 'amandine.martin@example.com', 'motdepasse3', 'utilisateur'),
+    ('Antoine Tremblay', 'antoine.tremblay@example.com', 'motdepasse4', 'utilisateur'),
+    ('Clement Lahaye', 'cl.lahaye@cfacampusmontsouris.fr', 'motdepasseadmin', 'administrateur')
 ]
 cur.executemany(
-    "INSERT INTO Utilisateurs (nom, email, mot_de_passe, type_utilisateur) VALUES (?, ?, ?, ?)",
+    "INSERT INTO utilisateurs (nom, email, mot_de_passe, role) VALUES (?, ?, ?, ?)",
     utilisateurs_data
 )
 
@@ -56,7 +56,7 @@ livres_data = [
     ('The Alchemist', 'Paulo Coelho', 1988, 9)
 ]
 cur.executemany(
-    "INSERT INTO Livres (titre, auteur, annee_publication, quantite_stock) VALUES (?, ?, ?, ?)",
+    "INSERT INTO livres (titre, auteur, annee_publication, stock) VALUES (?, ?, ?, ?)",
     livres_data
 )
 
@@ -67,11 +67,11 @@ emprunts_data = [
     (3, 4, '2023-01-25', None, 'emprunté')
 ]
 cur.executemany(
-    "INSERT INTO Emprunts (utilisateur_id, livre_id, date_emprunt, date_restitution, statut) VALUES (?, ?, ?, ?, ?)",
+    "INSERT INTO emprunts (utilisateur_id, livre_id, date_emprunt, date_restitution, statut) VALUES (?, ?, ?, ?, ?)",
     emprunts_data
 )
 
-# Exemple d'ajout des transactions (stocks)
+# Exemple d'ajout des transactions (ajout de stock)
 transactions_data = [
     (1, 'ajout', 10),
     (2, 'ajout', 5),
@@ -80,7 +80,7 @@ transactions_data = [
     (5, 'ajout', 6)
 ]
 cur.executemany(
-    "INSERT INTO Transactions (livre_id, type_transaction, quantite) VALUES (?, ?, ?)",
+    "INSERT INTO transactions (livre_id, type_transaction, quantite) VALUES (?, ?, ?)",
     transactions_data
 )
 
@@ -89,3 +89,5 @@ connection.commit()
 
 # Fermeture de la connexion
 connection.close()
+
+print("Base de données remplie avec succès !")
