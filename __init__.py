@@ -34,6 +34,8 @@ def login():
         session['utilisateur_id'] = utilisateur['id']
         session['nom'] = utilisateur['nom']
         session['role'] = utilisateur['role']
+        # Debug: Vérifier que les informations de session sont correctement définies
+        print(f"Utilisateur connecté: {session['nom']} (Role: {session['role']})")
         return redirect(url_for('dashboard'))  # Page d'accueil après connexion
     else:
         # Si l'utilisateur n'existe pas ou les informations sont incorrectes
@@ -43,7 +45,9 @@ def login():
 def dashboard():
     if 'utilisateur_id' not in session:
         return redirect(url_for('index'))  # Rediriger vers la page de login si non connecté
+    # Si l'utilisateur est connecté, afficher la page du tableau de bord
     return render_template('dashboard.html', utilisateur=session)
+
 
 @app.route('/logout')
 def logout():
