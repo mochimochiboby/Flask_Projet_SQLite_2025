@@ -1,7 +1,7 @@
 import sqlite3
 
 # Connexion à la base de données SQLite
-connection = sqlite3.connect('library.db')
+connection = sqlite3.connect('bibliotheque.db')
 
 # Lecture et exécution du fichier de schéma SQL
 with open('schema2.sql', 'r') as f:
