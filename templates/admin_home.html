@@ -9,10 +9,10 @@
     <h2>Tableau de Bord Admin</h2>
     <nav>
         <ul>
-            <li><a href="/manage_books">Gérer les Livres</a></li>
-            <li><a href="/manage_users">Gérer les Utilisateurs</a></li>
-            <li><a href="/manage_loans">Vérifier les Emprunts</a></li>
-            <li><a href="/logout">Se Déconnecter</a></li>
+            <li><a href="{{ url_for('admin_livres') }}">Gérer les Livres</a></li>
+            <li><a href="{{ url_for('admin_utilisateurs') }}">Gérer les Utilisateurs</a></li>
+            <li><a href="{{ url_for('admin_emprunts') }}">Vérifier les Emprunts</a></li>
+            <li><a href="{{ url_for('logout') }}">Se Déconnecter</a></li>
         </ul>
     </nav>
 </body>
