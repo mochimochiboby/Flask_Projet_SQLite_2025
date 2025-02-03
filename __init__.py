@@ -138,48 +138,6 @@ def add_book():
     
     return render_template('ajouter_livre.html')  # Cette page sera une simple page avec un formulaire pour ajouter un livre
 
-@app.route('/borrow_book/<int:book_id>', methods=['POST'])
-@login_required
-def borrow_book(book_id):
-    db = get_db()
-
-    # Vérification si le livre est disponible
-    book = db.execute('SELECT * FROM books WHERE id = ? AND available > 0', (book_id,)).fetchone()
-    
-    if not book:
-        flash('Ce livre n\'est pas disponible', 'error')
-        return redirect(url_for('user_livres'))
-
-    # Calcul de la date de retour et de la date d'échéance
-    loan_duration = timedelta(days=14)  # Durée d'emprunt de 14 jours
-    due_date = datetime.now() + loan_duration
-    
-    # Enregistrement de l'emprunt dans la base de données
-    db.execute('INSERT INTO loans (book_id, user_id, loan_date, due_date, status) VALUES (?, ?, ?, ?, ?)',
-               (book_id, session['user_id'], datetime.now(), due_date, 'active'))
-    
-    # Mise à jour de la quantité de livres disponibles
-    db.execute('UPDATE books SET available = available - 1 WHERE id = ?', (book_id,))
-    
-    db.commit()
-    db.close()
-    
-    flash('Livre emprunté avec succès', 'success')
-    return redirect(url_for('user_livres'))
-
-@app.route('/user_livres_empruntes')
-@login_required
-def user_livres_empruntes():
-    db = get_db()
-    loans = db.execute('''
-        SELECT books.title, loans.loan_date, loans.due_date
-        FROM loans
-        JOIN books ON loans.book_id = books.id
-        WHERE loans.user_id = ? AND loans.status = 'active'
-    ''', (session['user_id'],)).fetchall()
-    db.close()
-    return render_template('page_livres_empruntes.html', loans=loans)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
