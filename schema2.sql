@@ -1,43 +1,35 @@
--- Table des utilisateurs
-DROP TABLE IF EXISTS utilisateurs;
-CREATE TABLE utilisateurs (
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nom TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
-    mot_de_passe TEXT NOT NULL,
-    role TEXT NOT NULL CHECK(role IN ('utilisateur', 'administrateur'))
+    password TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user',  -- 'admin' ou 'user'
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table des livres
-DROP TABLE IF EXISTS livres;
-CREATE TABLE livres (
+DROP TABLE IF EXISTS books;
+CREATE TABLE books (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    titre TEXT NOT NULL,
-    auteur TEXT NOT NULL,
-    annee_publication INTEGER,
-    stock INTEGER NOT NULL
+    title TEXT NOT NULL,
+    author TEXT NOT NULL,
+    publication_date DATE NOT NULL,
+    genre TEXT NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    available INTEGER NOT NULL DEFAULT 1,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table des emprunts
-DROP TABLE IF EXISTS emprunts;
-CREATE TABLE emprunts (
+DROP TABLE IF EXISTS loans;
+CREATE TABLE loans (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    utilisateur_id INTEGER,
-    livre_id INTEGER,
-    date_emprunt DATE NOT NULL,
-    date_retour DATE,
-    FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id),
-    FOREIGN KEY(livre_id) REFERENCES livres(id)
-);
-
--- Table des transactions (pour gérer les emprunts et restitutions)
-DROP TABLE IF EXISTS transactions;
-CREATE TABLE transactions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    utilisateur_id INTEGER,
-    livre_id INTEGER,
-    type_transaction TEXT NOT NULL CHECK(type_transaction IN ('emprunt', 'restitution')),
-    date_transaction DATE NOT NULL,
-    FOREIGN KEY(utilisateur_id) REFERENCES utilisateurs(id),
-    FOREIGN KEY(livre_id) REFERENCES livres(id)
+    book_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    loan_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    return_date TIMESTAMP,
+    due_date TIMESTAMP NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active',  -- 'active' ou 'returned'
+    FOREIGN KEY (book_id) REFERENCES books (id),
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );
