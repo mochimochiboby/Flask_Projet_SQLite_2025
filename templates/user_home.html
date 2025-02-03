@@ -4,15 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil Utilisateur</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        nav {
+            margin-top: 30px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        nav ul li {
+            margin: 15px 0;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #4CAF50;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: #45a049;
+        }
+
+        p {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h2>Bienvenue sur la bibliothèque</h2>
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('user_livres') }}">Voir les Livres</a></li>
-            <li><a href="{{ url_for('user_livres_empruntes') }}">Mes Emprunts</a></li>
-            <li><a href="{{ url_for('logout') }}">Se Déconnecter</a></li>
-        </ul>
-    </nav>
+    <div class="container">
+        <h2>Bienvenue sur la bibliothèque</h2>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('user_livres') }}">Voir les Livres</a></li>
+                <li><a href="{{ url_for('user_livres_empruntes') }}">Mes Emprunts</a></li>
+                <li><a href="{{ url_for('logout') }}">Se Déconnecter</a></li>
+            </ul>
+        </nav>
+        <p>Si vous avez des questions, n'hésitez pas à contacter l'administrateur.</p>
+    </div>
 </body>
 </html>
