@@ -9,9 +9,9 @@
     <h2>Bienvenue sur la bibliothèque</h2>
     <nav>
         <ul>
-            <li><a href="/books">Voir les Livres</a></li>
-            <li><a href="/loans">Mes Emprunts</a></li>
-            <li><a href="/logout">Se Déconnecter</a></li>
+            <li><a href="{{ url_for('user_livres') }}">Voir les Livres</a></li>
+            <li><a href="{{ url_for('user_livres_empruntes') }}">Mes Emprunts</a></li>
+            <li><a href="{{ url_for('logout') }}">Se Déconnecter</a></li>
         </ul>
     </nav>
 </body>
