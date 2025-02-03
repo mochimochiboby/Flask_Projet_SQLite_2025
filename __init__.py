@@ -1,105 +1,72 @@
-from flask import Flask, render_template_string, render_template, jsonify, request, redirect, url_for, session
-from flask import render_template
-from flask import json
-from urllib.request import urlopen
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
+from datetime import datetime, timedelta
+from functools import wraps
 
-app = Flask(__name__)                                                                                                                   
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
+app = Flask(__name__)
+app.secret_key = 'secret_key'
 
-def get_db_connection():
+# Connexion à la base de données
+def get_db():
     conn = sqlite3.connect('bibliotheque.db')
-    conn.row_factory = sqlite3.Row  # Pour avoir un dictionnaire de résultats
+    conn.row_factory = sqlite3.Row
     return conn
+
+# Gestion des sessions
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session or session.get('role') != 'admin':
+            flash('Accès réservé aux administrateurs', 'error')
+            return redirect(url_for('user_home'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def index():
-    return render_template('login.html')
-    
-@app.route('/login', methods=['POST'])
-def login():
-    try:
-        email = request.form['email']
-        mot_de_passe = request.form['mot_de_passe']
-        
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, mot_de_passe))
-        utilisateur = cur.fetchone()
-        conn.close()
-        
-        if utilisateur:
-            session['utilisateur_id'] = utilisateur['id']
-            session['nom'] = utilisateur['nom']
-            session['role'] = utilisateur['role']
-            return redirect(url_for('dashboard'))
-        else:
-            return render_template('login.html', message="Identifiants incorrects")
-    except Exception as e:
-        print("Erreur:", e)
-        traceback.print_exc()
-        return "Erreur interne", 500
-        
-@app.route('/dashboard')
-def dashboard():
-    if 'utilisateur_id' not in session:
-        return redirect(url_for('index'))  # Rediriger vers la page de login si non connecté
-    # Si l'utilisateur est connecté, afficher la page du tableau de bord
-    return render_template('dashboard.html', utilisateur=session)
+    return redirect(url_for('login'))
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        
+        db = get_db()
+        user = db.execute('SELECT * FROM users WHERE email = ? AND password = ?', (email, password)).fetchone()
+        db.close()
+        
+        if user:
+            session['user_id'] = user['id']
+            session['role'] = user['role']
+            if user['role'] == 'admin':
+                return redirect(url_for('admin_home'))
+            return redirect(url_for('user_home'))
+        flash('Identifiants incorrects', 'error')
+    return render_template('login.html')
 
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
-@app.route('/recherche', methods=['GET'])
-def recherche_livres():
-    titre = request.args.get('titre', '')
-    auteur = request.args.get('auteur', '')
+@app.route('/admin_home')
+@admin_required
+def admin_home():
+    return render_template('admin_home.html')
 
-    conn = get_db_connection()
-    livres = conn.execute('SELECT * FROM livres WHERE titre LIKE ? AND auteur LIKE ?', 
-                          ('%' + titre + '%', '%' + auteur + '%')).fetchall()
-    conn.close()
-
-    return render_template('recherche_livres.html', livres=livres)
-
-@app.route('/emprunter', methods=['POST'])
-def emprunter():
-    livre_id = request.form['livre_id']
-    utilisateur_id = 1  # Assumer que l'utilisateur est connecté avec ID 1 pour cet exemple
-    date_emprunt = datetime.now().strftime('%Y-%m-%d')
-
-    conn = get_db_connection()
-    conn.execute('INSERT INTO emprunts (utilisateur_id, livre_id, date_emprunt) VALUES (?, ?, ?)',
-                 (utilisateur_id, livre_id, date_emprunt))
-    conn.commit()
-    conn.close()
-
-    return 'Livre emprunté avec succès !'
-
-@app.route('/admin_gestion_livres')
-def admin_gestion_livres():
-    conn = get_db_connection()
-    livres = conn.execute('SELECT * FROM livres').fetchall()
-    conn.close()
-    return render_template('admin_gestion_livres.html', livres=livres)
-
-@app.route('/ajouter_livre', methods=['POST'])
-def ajouter_livre():
-    titre = request.form['titre']
-    auteur = request.form['auteur']
-    stock = request.form['stock']
-
-    conn = get_db_connection()
-    conn.execute('INSERT INTO livres (titre, auteur, stock) VALUES (?, ?, ?)', 
-                 (titre, auteur, stock))
-    conn.commit()
-    conn.close()
-
-    return redirect(url_for('admin_gestion_livres'))
+@app.route('/user_home')
+@login_required
+def user_home():
+    return render_template('user_home.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
