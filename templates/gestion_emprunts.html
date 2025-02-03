@@ -1,0 +1,18 @@
+<!-- gestion_emprunts.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Emprunts</title>
+</head>
+<body>
+    <h1>Gestion des Emprunts</h1>
+    <ul>
+        {% for loan in loans %}
+        <li>{{ loan['title'] }} emprunté par {{ loan['first_name'] }} {{ loan['last_name'] }} (Emprunté le {{ loan['loan_date'] }}, retour prévu le {{ loan['due_date'] }})</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('admin_home') }}">Retour à l'accueil</a>
+</body>
+</html>
