@@ -5,6 +5,10 @@ from datetime import datetime, timedelta
 connection = sqlite3.connect('bibliotheque.db')
 cur = connection.cursor()
 
+# Lecture et exécution du schéma SQL
+with open('schema2.sql') as f:
+    connection.executescript(f.read())
+
 # Insertion des utilisateurs
 users = [
     ('Alice', 'Durand', 'alice.durand@example.com', 'password123', 'user'),
