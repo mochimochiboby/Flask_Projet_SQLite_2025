@@ -1,0 +1,18 @@
+<!-- gestion_utilisateurs.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Utilisateurs</title>
+</head>
+<body>
+    <h1>Gestion des Utilisateurs</h1>
+    <ul>
+        {% for user in users %}
+        <li>{{ user['first_name'] }} {{ user['last_name'] }} ({{ user['role'] }})</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('admin_home') }}">Retour à l'accueil</a>
+</body>
+</html>
