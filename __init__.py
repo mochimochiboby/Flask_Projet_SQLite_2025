@@ -16,31 +16,31 @@ def get_db_connection():
 @app.route('/')
 def index():
     return render_template('login.html')
-
+    
 @app.route('/login', methods=['POST'])
 def login():
-    email = request.form['email']
-    mot_de_passe = request.form['mot_de_passe']
-    
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    # Vérification des informations d'identification de l'utilisateur
-    cur.execute("SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, mot_de_passe))
-    utilisateur = cur.fetchone()
-
-    if utilisateur:
-        # Connexion réussie, démarrer une session
-        session['utilisateur_id'] = utilisateur['id']
-        session['nom'] = utilisateur['nom']
-        session['role'] = utilisateur['role']
-        # Debug: Vérifier que les informations de session sont correctement définies
-        print(f"Utilisateur connecté: {session['nom']} (Role: {session['role']})")
-        return redirect(url_for('dashboard'))  # Page d'accueil après connexion
-    else:
-        # Si l'utilisateur n'existe pas ou les informations sont incorrectes
-        return render_template('login.html', message="Identifiants incorrects")
-
+    try:
+        email = request.form['email']
+        mot_de_passe = request.form['mot_de_passe']
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM utilisateurs WHERE email = ? AND mot_de_passe = ?", (email, mot_de_passe))
+        utilisateur = cur.fetchone()
+        conn.close()
+        
+        if utilisateur:
+            session['utilisateur_id'] = utilisateur['id']
+            session['nom'] = utilisateur['nom']
+            session['role'] = utilisateur['role']
+            return redirect(url_for('dashboard'))
+        else:
+            return render_template('login.html', message="Identifiants incorrects")
+    except Exception as e:
+        print("Erreur:", e)
+        traceback.print_exc()
+        return "Erreur interne", 500
+        
 @app.route('/dashboard')
 def dashboard():
     if 'utilisateur_id' not in session:
