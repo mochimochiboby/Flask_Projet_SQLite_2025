@@ -1,5 +1,7 @@
 import sqlite3
+import time
 from datetime import datetime, timedelta
+
 
 # Connexion à la base de données SQLite
 connection = sqlite3.connect('bibliotheque.db')
@@ -8,6 +10,16 @@ cur = connection.cursor()
 # Lecture et exécution du schéma SQL
 with open('schema2.sql') as f:
     connection.executescript(f.read())
+
+
+# Convertir les dates en timestamps UNIX
+loans = [
+    (1, 2, time.mktime(datetime.strptime('2024-01-15', '%Y-%m-%d').timetuple()), 
+     time.mktime(datetime.strptime('2024-01-30', '%Y-%m-%d').timetuple()), 'active'),
+    (2, 1, time.mktime(datetime.strptime('2024-02-01', '%Y-%m-%d').timetuple()), 
+     time.mktime(datetime.strptime('2024-02-15', '%Y-%m-%d').timetuple()), 'active'),
+]
+cur.executemany("INSERT INTO loans (book_id, user_id, loan_date, due_date, status) VALUES (?, ?, ?, ?, ?)", loans)
 
 # Insertion des utilisateurs
 users = [
