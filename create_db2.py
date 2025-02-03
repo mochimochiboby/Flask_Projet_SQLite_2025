@@ -1,36 +1,36 @@
 import sqlite3
+from datetime import datetime, timedelta
 
 # Connexion à la base de données SQLite
 connection = sqlite3.connect('bibliotheque.db')
-
-# Exécution du schéma pour créer les tables
-with open('schema2.sql') as f:
-    connection.executescript(f.read())
-
-# Création du curseur
 cur = connection.cursor()
 
 # Insertion des utilisateurs
-cur.execute("INSERT INTO users (nom, prenom, email, password, role) VALUES (?, ?, ?, ?, ?)", ('Dupont', 'Emilie', 'emilie.dupont@example.com', 'motdepasse1', 'user'))
-cur.execute("INSERT INTO users (nom, prenom, email, password, role) VALUES (?, ?, ?, ?, ?)", ('Leroux', 'Lucas', 'lucas.leroux@example.com', 'motdepasse2', 'user'))
-cur.execute("INSERT INTO users (nom, prenom, email, password, role) VALUES (?, ?, ?, ?, ?)", ('Martin', 'Amandine', 'amandine.martin@example.com', 'motdepasse3', 'user'))
-cur.execute("INSERT INTO users (nom, prenom, email, password, role) VALUES (?, ?, ?, ?, ?)", ('Tremblay', 'Antoine', 'antoine.tremblay@example.com', 'motdepasse4', 'user'))
-cur.execute("INSERT INTO users (nom, prenom, email, password, role) VALUES (?, ?, ?, ?, ?)", ('Lahaye', 'Clement', 'cl.lahaye@cfacampusmontsouris.fr', 'motdepasseadmin', 'admin'))
+users = [
+    ('Alice', 'Durand', 'alice.durand@example.com', 'password123', 'user'),
+    ('Bob', 'Martin', 'bob.martin@example.com', 'password123', 'user'),
+    ('Charlie', 'Dupont', 'charlie.dupont@example.com', 'password123', 'user'),
+    ('Admin', 'Smith', 'admin@example.com', 'adminpass', 'admin')
+]
+cur.executemany("INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)", users)
 
 # Insertion des livres
-cur.execute("INSERT INTO books (title, author, publication_date, genre) VALUES (?, ?, ?, ?)", ('Le Petit Prince', 'Antoine de Saint-Exupéry', '1943-04-06', 'Conte'))
-cur.execute("INSERT INTO books (title, author, publication_date, genre) VALUES (?, ?, ?, ?)", ('1984', 'George Orwell', '1949-06-08', 'Dystopie'))
-cur.execute("INSERT INTO books (title, author, publication_date, genre) VALUES (?, ?, ?, ?)", ('Pride and Prejudice', 'Jane Austen', '1813-01-28', 'Romance'))
-cur.execute("INSERT INTO books (title, author, publication_date, genre) VALUES (?, ?, ?, ?)", ('Les Misérables', 'Victor Hugo', '1862-04-03', 'Roman Historique'))
-cur.execute("INSERT INTO books (title, author, publication_date, genre) VALUES (?, ?, ?, ?)", ('Moby Dick', 'Herman Melville', '1851-10-18', 'Aventure'))
+books = [
+    ('Le Petit Prince', 'Antoine de Saint-Exupéry', '1943-04-06', 'Fiction', 5, 5),
+    ('1984', 'George Orwell', '1949-06-08', 'Dystopie', 3, 3),
+    ('To Kill a Mockingbird', 'Harper Lee', '1960-07-11', 'Roman', 4, 4),
+    ('Pride and Prejudice', 'Jane Austen', '1813-01-28', 'Romance', 6, 6)
+]
+cur.executemany("INSERT INTO books (title, author, publication_date, genre, quantity, available) VALUES (?, ?, ?, ?, ?, ?)", books)
 
 # Insertion des emprunts
-cur.execute("INSERT INTO loans (book_id, user_id, loan_date, due_date, status) VALUES (?, ?, ?, ?, ?)", (1, 1, '2024-01-15', '2024-01-29', 'active'))
-cur.execute("INSERT INTO loans (book_id, user_id, loan_date, due_date, status) VALUES (?, ?, ?, ?, ?)", (2, 2, '2024-01-20', '2024-02-03', 'active'))
-cur.execute("INSERT INTO loans (book_id, user_id, loan_date, due_date, status) VALUES (?, ?, ?, ?, ?)", (3, 3, '2024-01-25', '2024-02-08', 'active'))
+loans = [
+    (1, 1, datetime.now(), (datetime.now() + timedelta(days=14)), 'active'),
+    (2, 2, datetime.now(), (datetime.now() + timedelta(days=14)), 'active'),
+    (3, 3, datetime.now(), (datetime.now() + timedelta(days=14)), 'active')
+]
+cur.executemany("INSERT INTO loans (book_id, user_id, loan_date, due_date, status) VALUES (?, ?, ?, ?, ?)", loans)
 
-# Validation des changements
+# Validation des changements et fermeture de la connexion
 connection.commit()
-
-# Fermeture de la connexion
 connection.close()
