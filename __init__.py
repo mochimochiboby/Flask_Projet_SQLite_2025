@@ -68,5 +68,76 @@ def admin_home():
 def user_home():
     return render_template('user_home.html')
 
+@app.route('/user_livres')
+@login_required
+def user_livres():
+    db = get_db()
+    books = db.execute('SELECT * FROM books WHERE available > 0').fetchall()
+    db.close()
+    return render_template('page_livres.html', books=books)
+
+@app.route('/user_livres_empruntes')
+@login_required
+def user_livres_empruntes():
+    db = get_db()
+    loans = db.execute('''
+        SELECT books.title, loans.loan_date, loans.due_date
+        FROM loans
+        JOIN books ON loans.book_id = books.id
+        WHERE loans.user_id = ? AND loans.status = 'active'
+    ''', (session['user_id'],)).fetchall()
+    db.close()
+    return render_template('page_livres_empruntes.html', loans=loans)
+
+@app.route('/admin_livres')
+@admin_required
+def admin_livres():
+    db = get_db()
+    books = db.execute('SELECT * FROM books').fetchall()
+    db.close()
+    return render_template('gestion_livres.html', books=books)
+
+@app.route('/admin_utilisateurs')
+@admin_required
+def admin_utilisateurs():
+    db = get_db()
+    users = db.execute('SELECT * FROM users').fetchall()
+    db.close()
+    return render_template('gestion_utilisateurs.html', users=users)
+
+@app.route('/admin_emprunts')
+@admin_required
+def admin_emprunts():
+    db = get_db()
+    loans = db.execute('''
+        SELECT books.title, users.first_name, users.last_name, loans.loan_date, loans.due_date
+        FROM loans
+        JOIN books ON loans.book_id = books.id
+        JOIN users ON loans.user_id = users.id
+    ''').fetchall()
+    db.close()
+    return render_template('gestion_emprunts.html', loans=loans)
+
+@app.route('/add_book', methods=['GET', 'POST'])
+@admin_required
+def add_book():
+    if request.method == 'POST':
+        title = request.form['title']
+        author = request.form['author']
+        genre = request.form['genre']
+        publication_date = request.form['publication_date']
+        quantity = int(request.form['quantity'])
+        
+        db = get_db()
+        db.execute('INSERT INTO books (title, author, genre, publication_date, quantity, available) VALUES (?, ?, ?, ?, ?, ?)',
+                   (title, author, genre, publication_date, quantity, quantity))
+        db.commit()
+        db.close()
+        flash('Livre ajouté avec succès', 'success')
+        return redirect(url_for('admin_livres'))
+    
+    return render_template('ajouter_livre.html')  # Cette page sera une simple page avec un formulaire pour ajouter un livre
+
+
 if __name__ == '__main__':
     app.run(debug=True)
