@@ -1,18 +1,115 @@
-<!-- gestion_utilisateurs.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Utilisateurs</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        a {
+            font-size: 16px;
+            text-decoration: none;
+            color: #4CAF50;
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            margin-top: 20px;
+            display: inline-block;
+            text-align: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .user-list {
+            margin-top: 20px;
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .user-list li {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-list li span {
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>Gestion des Utilisateurs</h1>
-    <ul>
-        {% for user in users %}
-        <li>{{ user['first_name'] }} {{ user['last_name'] }} ({{ user['role'] }})</li>
-        {% endfor %}
-    </ul>
-    <a href="{{ url_for('admin_home') }}">Retour à l'accueil</a>
+    <div class="container">
+        <h1>Gestion des Utilisateurs</h1>
+        <ul class="user-list">
+            {% for user in users %}
+            <li>
+                <div>
+                    <span>{{ user['first_name'] }} {{ user['last_name'] }}</span>
+                    <span>({{ user['role'] }})</span>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('admin_home') }}">Retour à l'accueil</a>
+        <footer>
+            <p>© 2025 Bibliothèque - Tous droits réservés</p>
+        </footer>
+    </div>
 </body>
 </html>
