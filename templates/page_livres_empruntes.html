@@ -1,0 +1,19 @@
+<!-- page_livres_empruntes.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Livres Empruntés</title>
+</head>
+<body>
+    <h1>Mes Livres Empruntés</h1>
+    <ul>
+        <!-- Les livres empruntés seront affichés ici dynamiquement -->
+        {% for loan in loans %}
+        <li>{{ loan['title'] }} - Emprunté le {{ loan['loan_date'] }} (Retour prévu le {{ loan['due_date'] }})</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('user_home') }}">Retour à l'accueil</a>
+</body>
+</html>
