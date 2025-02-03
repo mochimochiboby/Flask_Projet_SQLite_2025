@@ -139,5 +139,38 @@ def add_book():
     return render_template('ajouter_livre.html')  # Cette page sera une simple page avec un formulaire pour ajouter un livre
 
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        
+        # Vérifier si les mots de passe correspondent
+        if password != confirm_password:
+            flash('Les mots de passe ne correspondent pas', 'error')
+            return render_template('register.html')
+        
+        # Vérifier si l'email existe déjà
+        db = get_db()
+        existing_user = db.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+        if existing_user:
+            flash('Un utilisateur avec cet email existe déjà', 'error')
+            return render_template('register.html')
+        
+        # Insérer l'utilisateur dans la base de données
+        db.execute('INSERT INTO users (first_name, last_name, email, password, role) VALUES (?, ?, ?, ?, ?)',
+                   (first_name, last_name, email, password, 'user'))
+        db.commit()
+        db.close()
+
+        flash('Compte créé avec succès ! Vous pouvez maintenant vous connecter.', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('register.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
